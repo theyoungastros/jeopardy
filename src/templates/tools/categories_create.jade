@@ -1,0 +1,27 @@
+| {% extends "shared/base.html" %}
+| {% block content %}
+
+h1 Create Question Set
+
+div.form-container
+
+    | {% for message in messages %}
+    div(class="message message-{{message.type}}") {{message.body}}
+    | {% endfor %}
+
+    form(action="", method="post", enctype="multipart/form-data")
+        | {% csrf_token %}
+        | {% for field in form %}
+        div.form-group
+            label {{field.label}}
+            | {% for error in field.errors %}
+            div(class="field-error") {{ error|escape }}
+            |{% endfor %}
+            div.form-input {{field}}
+        | {% endfor %}
+
+        input(type="submit", value="Create")
+
+
+
+| {% endblock %}

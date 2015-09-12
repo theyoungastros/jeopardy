@@ -1,15 +1,31 @@
 from django.contrib import admin
-from .models import *
+from .models import Category, Question, Answer
 
-# class ProductAdmin(admin.ModelAdmin):
-#     """
-#     Product Admin
-#     """
-#     def image(self, obj):
-#         return '<img src="%s" width=100 />' % obj.image_url_small
+class CategoryAdmin(admin.ModelAdmin):
+    """
+    Category Admin
+    """
 
-#     image.allow_tags = True
+    list_display = ['title', 'difficulty']
 
-#     list_display = ['image', 'title', 'price']
+admin.site.register(Category, CategoryAdmin)
 
-# admin.site.register(Product, ProductAdmin)
+
+class QuestionAdmin(admin.ModelAdmin):
+    """
+    Question Admin
+    """
+
+    list_display = ['title', 'points', 'category']
+
+admin.site.register(Question, QuestionAdmin)
+
+
+class AnswerAdmin(admin.ModelAdmin):
+    """
+    Answer Admin
+    """
+
+    list_display = ['title', 'question', 'correct']
+
+admin.site.register(Answer, AnswerAdmin)

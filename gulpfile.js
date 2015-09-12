@@ -54,7 +54,7 @@ gulp.task( 'watch', function() {
     plugins.livereload.listen();
     gulp.watch( paths.src + 'scripts/**/*.js', [ 'scripts' ]);
     gulp.watch( paths.src + 'scripts/app/views**/*.jade', [ 'scripts' ]);
-    gulp.watch( paths.src + 'views/**/*.jade', [ 'templates' ]);
+    gulp.watch( paths.src + 'templates/**/*.jade', [ 'templates' ]);
     gulp.watch( paths.src + 'styles/**/*.{scss,sass}', [ 'styles' ] );
     gulp.watch( paths.src + 'images/**/*.{jpg,jpeg,gif,png,svg,ico}', [ 'images' ] );
 } );
@@ -99,7 +99,6 @@ gulp.task( 'styles', function() {
 
     var libraries = bower();
     libraries = libraries.filter( function( file ) {
-        
         return ( path.extname( file ) === '.css' );
     } );
     libraries = gulp.src( libraries );
@@ -107,7 +106,7 @@ gulp.task( 'styles', function() {
     var application = gulp.src( paths.src + 'styles/styles.scss' )
         .pipe( plugins.sass( {
             errLogToConsole: true,
-            includePaths: [ neat, paths.bower + 'fontawesome/scss' ]
+            includePaths: [ paths.bower + 'fontawesome/scss' ]
         }))
         .on( 'error', handleError )
 
