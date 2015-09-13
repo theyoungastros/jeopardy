@@ -22,9 +22,8 @@ window.app = angular.module( 'App', [
     'nav',
     'auth',
     'templates',
+    'game',
 
     //View Controllers
     'home',
-    'about',
-    'game',
 ]);

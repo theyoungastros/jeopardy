@@ -16,7 +16,7 @@ div.form-container
             label {{field.label}}
             | {% for error in field.errors %}
             div(class="field-error") {{ error|escape }}
-            |{% endfor %}
+            | {% endfor %}
             div.form-input {{field}}
         | {% endfor %}
 

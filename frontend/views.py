@@ -7,10 +7,4 @@ from api.serializers import *
 
 def index(request):
 
-    # products = Product.objects.order_by('?')[:2]
-
-    # data = { 
-    #     'products': ProductSerializer(products, many=True).data,
-    # }
-
     return render(request, 'frontend/index.html', {})

@@ -2,5 +2,6 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^categories/create/?$', views.categories_create, name='categories_create'),
+    url(r'^create/?$', views.create, name='create'),
+    url(r'^generate/?$', views.generate, name='generate'),
 ]
