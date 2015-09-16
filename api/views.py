@@ -7,6 +7,9 @@ import utils
 
 
 def game(request):
+    """
+    Gets the main game information for the session
+    """
 
     categories = []
     for category in Category.objects.all().order_by('?')[:6]:
@@ -15,6 +18,9 @@ def game(request):
     return utils.json_response(categories, 200, "success")
 
 def answer(request):
+    """
+    Validates whether the answer is correct or incorrect
+    """
 
     answer = Answer.objects.get(pk=request.GET['answer_id'])
     return utils.json_response({'correct': answer.correct}, 200, "success")

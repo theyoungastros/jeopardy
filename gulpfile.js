@@ -41,14 +41,12 @@ var handleError = function( error ) {
 // Default / Build Tasks
 // --------------------------------------
 
-gulp.task( 'default', [ 'templates', 'images', 'scripts', 'styles', 'fonts', 'watch' ] );
-gulp.task( 'build', [ 'templates', 'images', 'scripts', 'styles', 'fonts' ] );
-
+gulp.task( 'default', [ 'templates', 'images', 'scripts', 'styles', 'fonts', 'sfx', 'watch' ] );
+gulp.task( 'build', [ 'templates', 'images', 'scripts', 'styles', 'fonts', 'sfx' ] );
 
 // --------------------------------------
 // Watch Task
 // --------------------------------------
-
 
 gulp.task( 'watch', function() {
     plugins.livereload.listen();
@@ -76,9 +74,23 @@ gulp.task( 'fonts', function() {
 
 
 // --------------------------------------
-//  Images Task
+// SFX Task
 // --------------------------------------
 
+gulp.task( 'sfx', function() {
+
+    var files = [
+        paths.src + 'sfx/*.{mp3,wav}',
+    ];
+    gulp.src( files )
+      .pipe( gulp.dest( paths.dest + 'sfx' ) );
+
+} );
+
+
+// --------------------------------------
+//  Images Task
+// --------------------------------------
 
 gulp.task( 'images', function() {
 
@@ -184,7 +196,6 @@ gulp.task( 'scripts', function() {
         .pipe( plugins.concat( 'all.js' ) )
         .pipe( gulp.dest( paths.dest + 'scripts' ) )
         .pipe( plugins.livereload( { auto: false } ) );
-
 
 });
 

@@ -2,19 +2,34 @@ div.animate-fade-up(ng-controller="HomeCtrl")
     h1 Jeopardy!
 
     div.game-container
+
+        div.score(ng-class="score < 0 ? 'negative' : null") {{score}}
+        div.timer(ng-show="showTimer") {{timeRemaining}}
+
         div.board(ng-show="categories.length")
+
             div.board-category-row
                 div.board-category(ng-repeat="category in categories track by $index")
                     span {{category.title}}
+
             div.board-col(ng-repeat="category in categories track by $index")
                 div.board-item(ng-repeat="question in category.questions track by $index", ng-click="showQuestion(question)")
                     span(ng-hide="true") {{question.title}}
-                    span.points ${{question.points}}
+                    span.points(ng-show="!question.removed") ${{question.points}}
+                div.clear
 
             div.big-question(ng-show="activeQuestion")
                 span {{activeQuestion.title}}
 
-        div.choices(ng-show="activeQuestion")
+            div.big-message(ng-show="bigMessage")
+                span {{bigMessage}}
+
+            div.clear
+        
+        div.buzzer(ng-show="activeQuestion && !buzzedIn", ng-click="buzz()")
+            span Buzz In 
+
+        div.choices(ng-show="buzzedIn")
             div.choice(ng-repeat="answer in activeQuestion.answers track by $index", ng-click="selectAnswer(answer)")
                 span {{answer.title}}
             
