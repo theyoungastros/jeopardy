@@ -1,35 +1,42 @@
-div.animate-fade-up(ng-controller="HomeCtrl")
+.animate-fade-up(ng-controller="HomeCtrl")
     h1 Jeopardy!
+    h4.round-timer(ng-show="showRoundTimer") {{roundTimeRemaining}}
 
-    div.game-container
+    .game-container
 
-        div.score(ng-class="score < 0 ? 'negative' : null") {{score}}
-        div.timer(ng-show="showTimer") {{timeRemaining}}
+        .score(ng-class="score < 0 ? 'negative' : null") {{score}}
+        .timer(ng-show="showTimer") {{timeRemaining}}
 
-        div.board(ng-show="categories.length")
+        .board(ng-show="categories.length")
 
-            div.board-category-row
-                div.board-category(ng-repeat="category in categories track by $index")
+            .board-category-row
+                .board-category(ng-repeat="category in categories track by $index")
                     span {{category.title}}
 
-            div.board-col(ng-repeat="category in categories track by $index")
-                div.board-item(ng-repeat="question in category.questions track by $index", ng-click="showQuestion(question)")
+            .board-col(ng-repeat="category in categories track by $index")
+                .board-item(ng-repeat="question in category.questions track by $index", ng-click="showQuestion(question)")
                     span(ng-hide="true") {{question.title}}
-                    span.points(ng-show="!question.removed") ${{question.points}}
-                div.clear
+                    span.points(ng-show="!question.removed  && question.ready") ${{question.points}}
+                .clear
 
-            div.big-question(ng-show="activeQuestion")
+            .big-question(ng-show="activeQuestion")
                 span {{activeQuestion.title}}
 
-            div.big-message(ng-show="bigMessage")
+            .big-message(ng-show="bigMessage")
                 span {{bigMessage}}
 
-            div.clear
+            .final-jeopardy-category(ng-show="finalJeopardyCategory")
+                span Category: {{finalJeopardyCategory.title}}
+
+            .final-jeopardy-question(ng-show="showFinalJeopardyQuestion")
+                span {{activeQuestion.title}}
+
+            .clear
         
-        div.buzzer(ng-show="activeQuestion && !buzzedIn", ng-click="buzz()")
+        .buzzer(ng-show="activeQuestion && !buzzedIn", ng-click="buzz()")
             span Buzz In 
 
-        div.choices(ng-show="buzzedIn")
-            div.choice(ng-repeat="answer in activeQuestion.answers track by $index", ng-click="selectAnswer(answer)")
+        .choices(ng-show="buzzedIn")
+            .choice(ng-repeat="answer in activeQuestion.answers track by $index", ng-click="selectAnswer(answer)")
                 span {{answer.title}}
             

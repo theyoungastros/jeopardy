@@ -17,6 +17,11 @@ def game(request):
 
     return utils.json_response(categories, 200, "success")
 
+def final(request):
+
+    category = Category.objects.filter().order_by('?')[0]
+    return utils.json_response(category.serialize(), 200, "success")
+
 def answer(request):
     """
     Validates whether the answer is correct or incorrect

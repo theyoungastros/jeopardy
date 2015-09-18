@@ -92,5 +92,12 @@ function() {
         return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
     };
 
+    utils.isNumberWithinRange = function(x, min, max) {
+        if (isNaN(x) || x < min || x > max) {
+            return false;
+        }
+        return true;
+    };
+
     return utils;
 }]);

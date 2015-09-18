@@ -2,6 +2,14 @@
 $tv_height: 100px;
 $tv_width: 120px;
 
+.round-timer{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 14px;
+    text-align: center;
+}
+
 .game-container{
 
     .score{
@@ -75,7 +83,7 @@ $tv_width: 120px;
             }
         }
 
-        .big-question, .big-message{
+        .big-question, .big-message, .final-jeopardy-category, .final-jeopardy-question{
 
             background-image: linear-gradient(#3d9cf4, #0a30c9, #0d85e8);
             position: absolute;
