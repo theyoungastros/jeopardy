@@ -108,6 +108,27 @@ $tv_width: 120px;
         }
     }
 
+    .players{
+        display: block;
+        width: $tv_width * 6;
+        margin: 5px auto;
+
+        .player{
+            width: 33%;
+            float: left;
+            height: 120px;
+            border: 1px solid #000;
+            .name {
+                text-align: center;
+            }
+            .score{
+                padding: 20px 0;
+                text-align: center;
+                font-size: 20px;
+            }
+        }
+    }
+
     .buzzer{
         position: relative;
         display: block;
@@ -160,4 +181,48 @@ $tv_width: 120px;
             }
         }
     }
+}
+
+.pregame-container {
+    text-align: center;
+}
+
+
+.chat{
+    h5{
+        margin: 3px 0;
+    }
+    #messages{
+        overflow-y: scroll;
+        height: 200px;
+        background: #fff;
+
+        .row{
+            border-bottom: 1px solid #ccc;
+            padding: 5px;
+            font-size: 10px;
+            span.user{
+                font-weight: bold;
+            }
+        }
+    }
+    #input{
+        margin-top: 10px;
+        display: block;
+        textarea{
+            display: block;
+            width: 97%;
+        }
+        input{
+            display: block;
+            width: 100%;
+            margin-top: 5px;
+        }
+    }
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+    background: #ccc;
+    padding: 5px;
 }

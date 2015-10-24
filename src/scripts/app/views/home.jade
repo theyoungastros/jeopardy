@@ -2,7 +2,10 @@
     h1 Jeopardy!
     h4.round-timer(ng-show="showRoundTimer") {{roundTimeRemaining}}
 
-    .game-container
+    .pregame-container(ng-show="!gameHasStarted")
+        input(type="button" value="Start Game" ng-show="playerIsHost" ng-click="startGame()")
+        h3(ng-show="!playerIsHost") Waiting for host to start game.
+    .game-container(ng-show="gameHasStarted")
 
         .score(ng-class="score < 0 ? 'negative' : null") {{score}}
         .timer(ng-show="showTimer") {{timeRemaining}}
@@ -14,7 +17,7 @@
                     span {{category.title}}
 
             .board-col(ng-repeat="category in categories track by $index")
-                .board-item(ng-repeat="question in category.questions track by $index", ng-click="showQuestion(question)")
+                .board-item(ng-repeat="question in category.questions track by $index", ng-click="selectQuestion(question)")
                     span(ng-hide="true") {{question.title}}
                     span.points(ng-show="!question.removed  && question.ready") ${{question.points}}
                 .clear
@@ -33,10 +36,24 @@
 
             .clear
         
+        .players
+            .player(ng-repeat="player in players")
+                .name {{player.name}}
+                .score {{player.score}}
+
         .buzzer(ng-show="activeQuestion && !buzzedIn", ng-click="buzz()")
             span Buzz In 
 
-        .choices(ng-show="buzzedIn")
+        .choices(ng-show="buzzedIn && playerCanAnswer")
             .choice(ng-repeat="answer in activeQuestion.answers track by $index", ng-click="selectAnswer(answer)")
                 span {{answer.title}}
-            
+
+    .chat
+        h5 room: {{roomName}}
+        #messages
+            .row(ng-repeat="message in messages")
+                span.user [{{message.name}}]: 
+                span.message {{message.body}}
+        #input
+            textarea#message(placeholder="Type message here" ng-model="newMessage")
+            input(type="button" value="Send" ng-click="sendChatMessage()")

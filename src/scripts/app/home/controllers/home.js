@@ -14,14 +14,194 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
     var debug = true;
     var timer = null;
     var roundTimer = null;
-    var defaultTime = 3;
+    var defaultTime = 10;
     var defaultRoundTime = 60 * 5;
-    var mute = false;
+    var mute = true;
     var totalRounds = 2;
     var roundReady = false;
     var roundNumber = 0;
 
+    $scope.newMessage = "";
+    $scope.messages = [];
+
+    $scope.gameHasStarted = false;
+    $scope.playerIsHost = false;
+    $scope.playerCanChoose = false;
+    $scope.playerCanAnswer = false;
+
+    socketInit();
     resetAndInit();
+
+    function socketInit() {
+        $scope.ws = new WebSocket("ws://localhost:9000/chat");
+
+        var join = confirm("Would you like to join an existing game?");
+
+        if(join) {
+            if(debug){
+                var roomName = "testroom123";
+                var playerName = "Player " + getRandomInt(1, 9);
+            } else {
+                var roomName = prompt("Enter the room name now");
+                var playerName = prompt("What is your name?");
+            }
+            var data = {
+                type: "join",
+                roomName: roomName,
+                playerName: playerName
+            };
+            $scope.ws.send(JSON.stringify(data));
+        } else {
+            if(debug){
+                var roomName = "testroom123";
+                var playerName = "Player " + getRandomInt(1, 9);
+            } else {
+                var roomName = prompt("What would you like to call this room?");
+                var playerName = prompt("What is your name?");
+            }
+            var data = {
+                type: "create",
+                roomName: roomName,
+                playerName: playerName
+            };
+            $scope.ws.send(JSON.stringify(data));
+            $scope.playerIsHost = true;
+        }
+
+
+        $scope.playerName = playerName;
+        $scope.roomName = roomName;
+
+
+        $scope.ws.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            
+            switch(data.type){
+                case "create":
+                    var msg = {name: "System", body: data.playerName + " has created the room " + data.roomName + "."};
+                    $scope.messages.push(msg);
+                    $scope.$apply();
+                    break;
+                case "join":
+                    var msg = {name: "System", body: data.playerName + " has joined the room."};
+                    $scope.messages.push(msg);
+                    $scope.$apply();
+                    break;
+                case "message":
+                    var msg = {name: data.playerName, body: data.body};
+                    $scope.messages.push(msg);
+                    $scope.$apply();
+                    break;
+                case "start":
+                    roundNumber++;
+
+                    $scope.players = data.players;
+
+                    if(roundNumber > totalRounds){
+                        finalJeopardy();
+                        return;
+                    }
+
+                    playSound('round-begin');
+
+                    $scope.categories = data.categories;
+                    determineDailyDouble();
+                    $scope.gameHasStarted = true;
+
+                    for(var i=0; i<6; i++) {
+                        for(var j=0; j<5;j++) {
+
+                            var delay = getRandomInt(0, 3500);
+
+                            var call = function(_i, _j, _delay){
+                                $timeout(function(){
+                                    setQuestionToReady(_i, _j);
+                                }, _delay);
+                            }
+                            call(i, j, delay);
+                        }
+                    }
+
+                    $timeout(function(){
+                        roundReady = true;
+                        startRoundTimer();
+
+                        if($scope.playerIsHost) {
+                            $scope.playerCanChoose = true;
+                        }
+
+                    }, 4000);
+
+                    break;
+
+                case "question":
+                    var q = null;
+                    console.log("data:", data);
+                    console.log("categories:", $scope.categories);
+                    for(var i=0, category; category=$scope.categories[i]; i++){
+                        for(var j=0, question; question=category.questions[j]; j++) {
+                            if(data.question.id == question.id){
+                                q = question;
+                                break;
+                            }
+                        }
+                        if(q){
+                            break;
+                        }
+                    }
+
+                    if(q){
+                        $scope.showQuestion(q);
+                    } else {
+                        alert("Question not found!");
+                    }
+
+                    break;
+                case "buzz":
+                    playSound('buzz');
+                    $scope.buzzedIn = true;
+                    stopTimer();
+                    startTimer(defaultTime);
+                    
+                    if(data.playerName == $scope.playerName){
+                        $scope.playerCanAnswer = true;
+                    } else {
+                        $scope.playerCanAnswer = false;
+                    }
+                    break;
+            }
+        }
+
+        $scope.sendChatMessage = function( ) {
+
+            var body = $scope.newMessage;
+
+            var data = {
+                type: "message",
+                playerName: $scope.playerName,
+                body: body
+            };
+
+            $scope.ws.send(JSON.stringify(data));
+            $scope.newMessage = "";
+        };
+
+        
+
+    }
+
+    $scope.startGame = function ( ) {
+        resetAndInit();
+
+        var data = {
+            type: "start",
+            roomName: $scope.roomName,
+            playerName: $scope.playerName
+        };
+
+        $scope.ws.send(JSON.stringify(data));
+
+    };
 
     function resetAndInit() {
         $scope.categories = [];
@@ -39,51 +219,10 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
 
         $scope.score = $scope.score || 0;
         $scope.dailyDoubleBet = null;
-
-        beginRound();
         
     }
 
-    function beginRound() {
 
-        roundNumber++;
-
-        if(roundNumber > totalRounds){
-            finalJeopardy();
-            return;
-        }
-
-        playSound('round-begin');
-
-        GameService.query({}, function( response ) {
-            $scope.categories = response.objects;
-            console.log($scope.categories);
-
-            determineDailyDouble();
-
-            for(var i=0; i<6; i++) {
-                for(var j=0; j<5;j++) {
-
-                    var delay = getRandomInt(0, 3500);
-
-                    var call = function(_i, _j, _delay){
-                        $timeout(function(){
-                            setQuestionToReady(_i, _j);
-                        }, _delay);
-                    }
-                    call(i, j, delay);
-                }
-            }
-
-            $timeout(function(){
-
-                roundReady = true;
-                startRoundTimer();
-            }, 4000);
-
-        });
-
-    }
 
     function setQuestionToReady(i, j){
         $scope.categories[i].questions[j].ready = true;
@@ -91,7 +230,11 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
 
     /* Scope Functions */
 
-    $scope.showQuestion = function( question ) {
+    $scope.selectQuestion = function( question ) {
+        if(!$scope.playerCanChoose){
+            alert("It's not your turn");
+            return;
+        }
         if(question.removed){
             return;
         }
@@ -99,6 +242,19 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
         if(!roundReady){
             return;
         }
+
+        var data = {
+            type: "question",
+            question: question,
+            roomName: $scope.roomName,
+            playerName: $scope.playerName
+        };
+
+        $scope.ws.send(JSON.stringify(data));
+
+    };
+
+    $scope.showQuestion = function ( question ) {
 
         if(question.dailyDouble){
             playSound('daily-double');
@@ -123,6 +279,8 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
 
         stopTimer();
 
+
+
         AnswerService.query({ answer_id: answer.id }, function ( response ) {
 
             var points = $scope.activeQuestion.dailyDouble ? $scope.dailyDoubleBet : $scope.activeQuestion.points;
@@ -140,11 +298,15 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
     };
 
     $scope.buzz = function( ) {
-        playSound('buzz');
-        $scope.buzzedIn = true;
-        stopTimer();
+        var data = {
+            type: "buzz",
+            roomName: $scope.roomName,
+            playerName: $scope.playerName
+        };
 
-        startTimer(defaultTime);
+        $scope.ws.send(JSON.stringify(data));
+
+        
     };
 
     /* Private Functions */
@@ -295,8 +457,6 @@ function( $scope, $timeout, GameService, AnswerService, FinalService, Utils ) {
 
             FinalService.query({}, function(response){
                 $scope.finalJeopardyCategory = response.objects;
-
-                console.log(response.objects);
 
                 $timeout(function(){
                     var wager = promptDailyDouble();
